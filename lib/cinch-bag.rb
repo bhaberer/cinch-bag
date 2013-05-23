@@ -1,7 +1,2 @@
-require "cinch-bag/version"
-
-module Cinch
-  module Bag
-    # Your code goes here...
-  end
-end
+require 'cinch/plugins/bag/version'
+require 'cinch/plugins/bag/bag'

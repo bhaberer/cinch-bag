@@ -1,19 +1,24 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'cinch-bag/version'
+require 'cinch/plugins/bag/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "cinch-bag"
-  gem.version       = Cinch::Bag::VERSION
+  gem.version       = Cinch::Plugins::Bag::VERSION
   gem.authors       = ["Brian Haberer"]
   gem.email         = ["bhaberer@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{Nothing to see here.}
+  gem.summary       = %q{Nothing to see here!}
+  gem.homepage      = "https://github.com/bhaberer/cinch-bag"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
+
+  gem.add_dependency('cinch-storage',  '>= 0.0.1')
+  gem.add_dependency('cinch-toolbox',  '>= 0.0.5')
+  gem.add_dependency('cinch-cooldown', '>= 0.0.1')
+  gem.add_dependency('time-lord',      '>= 1.0.1')
 end

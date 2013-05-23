@@ -1,29 +1,7 @@
-# Cinch::Bag
+# Cinch::Plugins::Bag
 
-TODO: Write a gem description
+This plugin is a recurring injoke in a specific open-minded and close-knit IRC Channel about a
+bag of takeout food from a burger joint called Dicks. I recreated this plugin to mimic the
+behavior of an older IRC bot after people missed the joke/game.
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'cinch-bag'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install cinch-bag
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+I do not reccommend using this plugin. Ever. People will be offended at the _very_ least. :)
