@@ -67,9 +67,9 @@ module Cinch::Plugins
       elsif @storage.data[:last].key?(:action)
         case @storage.data[:last][:action]
         when 'nom'
-          m.channel.action db_message('nom', { :new => m.user.nick, :old => @storage.data[:last][:nick] })
+          m.channel.action db_message(:nom, { :new => m.user.nick, :old => @storage.data[:last][:nick] })
         when 'hid'
-          m.channel.action db_message('hid', { :new => m.user.nick })
+          m.channel.action db_message(:hid, { :new => m.user.nick })
         else
           m.channel.action db_message(:new_owner, { :new => @storage.data[:last][:nick],
                                                     :old => current_nick })
@@ -79,7 +79,7 @@ module Cinch::Plugins
         @storage.data[:last] = {}
         add_stat_count(m.user.nick, 1)
       else
-        m.channel.action db_message('new', { :new => m.user.nick })
+        m.channel.action db_message(:new, { :new => m.user.nick })
         give_bag_to(m.user.nick)
         add_stats(m.user.nick, 1)
       end
