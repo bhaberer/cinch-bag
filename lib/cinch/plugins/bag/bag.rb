@@ -104,7 +104,7 @@ module Cinch::Plugins
       stats.sort! {|x,y| y[:time] <=> x[:time] }
       m.user.msg "Top 5 users by the total time they've had the bag:"
       stats[0..4].each_index do |i|
-        m.user.msg "#{i + 1}. #{stats[i][:nick]} - #{Toolbox.time_format(stats[i][:time])}"
+        m.user.msg "#{i + 1}. #{stats[i][:nick]} - #{Cinch::Toolbox.time_format(stats[i][:time])}"
       end
     end
 
