@@ -29,7 +29,7 @@ module Cinch::Plugins
     match /^[!\.]dickbag stats/, method: :stats
 
     def listen(m)
-      if action_on_bag?(m) 
+      if action_on_bag?(m)
         action = m.action_message.match(/^(.*) (bag of dicks|dickbag)/)[1]
         if action.match(/noms|eats/)
           Bag.last = { action: 'nom', nick: m.user.nick }
@@ -69,35 +69,22 @@ module Cinch::Plugins
     end
 
     def info(m)
-      message = Bag.current.nick.nil? ? ['I am'] : ["#{Bag.current.nick} is"]
-      message << 'currently holding the bag of dicks.'
-
-      unless Bag.current.time.nil?
+      if Bag.current.nick.nil?
+        message = ['I am currently holding the bag of dicks.'] 
+      else 
+        message = ["#{Bag.current.nick} is currently holding the bag of dicks."]
         message << "I gave it to them #{Bag.current.time.ago.to_words}."
-      end
-
-      unless Bag.current.count.nil?
         message << "The current bag has been shared by #{Bag.current.count} other people."
       end
-
-      if top = Score.top_by(:count)
-        message << "#{top.nick} has had the bag the most times at #{top.count}."
-      end
-
-      if top = Score.top_by(:time)
-        message << "#{top.nick} has held the bag for the longest time at #{Cinch::Toolbox.time_format(top.time)}."
-      end
-
       m.reply message.join(' '), true
     end
 
     private
 
     def init_bag(m)
-      last = Bag.last
-      if last.key?(:action) && last[:action] == :nom 
+      if Bag.last[:action] == :nom 
         m.channel.action db_message(:nom, { new: m.user.nick, 
-                                            old: last[:nick] })
+                                            old: Bag.last[:nick] })
         Bag.clear_last
       else
         m.channel.action db_message(:new, { new: m.user.nick })
