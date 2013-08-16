@@ -58,19 +58,20 @@ module Cinch::Plugins
 
     def stats(m)
       m.user.msg "Top 5 users by times they've had the bag:"
-      Score.board(:count).each_index do |i, score|
+      Score.board(:count).each_with_index do |score, i|
         m.user.msg "#{i + 1}. #{score.nick} - #{score.count}"
       end
 
       m.user.msg "Top 5 users by the total time they've had the bag:"
-      Score.board(:time).each_index do |i, score|
-        m.user.msg "#{i + 1}. #{score.nick} - #{Timelord::Period.new(0, score.time)}"
+      Score.board(:time).each_with_index do |score, i|
+        time = Cinch::Toolbox.time_format(score.time)
+        m.user.msg "#{i + 1}. #{score.nick} - #{time}"
       end
     end
 
     def info(m)
       if Bag.current.nick.nil?
-        message = ['I am currently holding the bag of dicks.'] 
+        message = ['I am currently holding the bag of dicks.']
       else 
         message = ["#{Bag.current.nick} is currently holding the bag of dicks."]
         message << "I gave it to them #{Bag.current.time.ago.to_words}."
