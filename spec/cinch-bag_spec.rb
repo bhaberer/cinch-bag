@@ -20,12 +20,23 @@ describe Cinch::Plugins::Dickbag do
   it 'should allow users to get the bag' do
     get_replies(make_message(@bot, '!dickbag', { channel: '#foo', nick: 'joe' })).
       first.text.should == 'reaches down and grabs a new bag of dicks and hands it to joe'
+    Cinch::Plugins::Dickbag::Bag.current.nick.
+      should  == 'joe'
   end
 
   it 'should allow players to steal the bag' do
     get_replies(make_message(@bot, '!dickbag', { channel: '#foo', nick: 'joe' }))
     reply = get_replies(make_message(@bot, '!dickbag', { channel: '#foo', nick: 'amy' })). first.text
-    reply.should include("joe")
+    Bag.current.nick.
+      should  == 'amy' 
   end
+
+  it 'should allow users to nom the bag' do
+    get_replies(make_message(@bot, '!dickbag', { channel: '#foo', nick: 'joe' }))
+    get_replies(make_message(@bot, 'noms the dickbag', { channel: '#foo', nick: 'joe' }), :action)
+    Cinch::Plugins::Dickbag::Bag.last.
+      should == ''
+  end 
+  
 
 end

@@ -10,6 +10,7 @@ module Cinch::Plugins
 
     @@score_file = 'yaml/dickbag_scores.yaml'
     @@bag_file   = 'yaml/dickbag_status.yaml'
+    @@bot = @bot
 
     self.help = "Use .dickbag to get the bag, you know you want some tasty, tasty Dick's."
     enforce_cooldown
@@ -20,7 +21,7 @@ module Cinch::Plugins
       @@bag_file   = config[:bag_file]   if config.key?(:bag_file)
     end
 
-    listen_to :channel
+    listen_to :action
 
     set(:prefix => '')
 
@@ -29,50 +30,49 @@ module Cinch::Plugins
     match /^[!\.]dickbag stats/, method: :stats
 
     def listen(m)
-      if action_on_bag?(m)
-        action = m.action_message.match(/^(.*) (bag of dicks|dickbag)/)[1]
-        if action.match(/noms|eats/)
-          Bag.last = { action: 'nom', nick: m.user.nick }
-          Score.add_time(m.user.nick, Bag.current.time)
-          Bag.clear_current
+      @bot.synchronize(:bag) do
+        if Bag.current && m.user.nick == Bag.current.nick 
+          action = m.action_message.match(/^(.*) (bag of dicks|dickbag)/)[1]
+          if action.match(/noms|eats/)
+            Bag.set_last(:nom, m.user.nick)
+            Score.add_time(m.user.nick, Bag.current.time)
+            Bag.clear_current
+          end
         end
       end
     end
 
     def dickbag(m)
-      new_nick = m.user.nick
-      old_nick = Bag.current.nick if Bag.current
-      if old_nick
-        if old_nick == new_nick
-          m.reply db_message(:same_user), true
+      @bot.synchronize(:bag) do
+        new_nick = m.user.nick
+        old_nick = Bag.current.nick if Bag.current
+        if old_nick
+          if old_nick == new_nick
+            m.reply db_message(:same_user), true
+          else
+            m.channel.action db_message(:new_owner, { new: new_nick, old: old_nick })
+            Score.add_time(old_nick, Bag.current.time)
+            Score.add_count(new_nick, 1)
+            Bag.give_to(new_nick)
+          end
         else
-          m.channel.action db_message(:new_owner, { new: new_nick, old: old_nick })
-          Score.add_time(old_nick, Bag.current.time)
-          Score.add_count(new_nick, 1)
-          Bag.give_to(new_nick)
+          init_bag(m)
         end
-      else
-        init_bag(m)
       end
     end
 
     def stats(m)
-      m.user.msg "Top 5 users by times they've had the bag:"
-      Score.board(:count).each_with_index do |score, i|
-        m.user.msg "#{i + 1}. #{score.nick} - #{score.count}"
-      end
-
-      m.user.msg "Top 5 users by the total time they've had the bag:"
-      Score.board(:time).each_with_index do |score, i|
-        time = Cinch::Toolbox.time_format(score.time)
-        m.user.msg "#{i + 1}. #{score.nick} - #{time}"
-      end
+      report_top_counts(m)
+      user_rank(m, :count)
+      m.user.msg "\n"
+      report_top_times(m)
+      user_rank(m, :time)
     end
 
     def info(m)
       if Bag.current.nick.nil?
         message = ['I am currently holding the bag of dicks.']
-      else 
+      else
         message = ["#{Bag.current.nick} is currently holding the bag of dicks."]
         message << "I gave it to them #{Bag.current.time.ago.to_words}."
         message << "The current bag has been shared by #{Bag.current.count} other people."
@@ -81,10 +81,43 @@ module Cinch::Plugins
     end
 
     private
+    
+    def report_top_counts(m, count = 5)
+      m.user.msg "Top #{count} users by times they've had the bag:"
+      Score.board(:count, count).each_with_index do |score, i|
+        score_message(m, (i + 1), score.nick, score.count)
+      end
+    end
+
+    def report_top_times(m, count = 5)
+      m.user.msg "Top #{count} users by the total time they've had the bag:"
+      Score.board(:time, count).each_with_index do |score, i|
+        time = Cinch::Toolbox.time_format(score.time)
+        score_message(m, (i + 1), score.nick, time)
+      end
+    end
+
+    def user_rank(m, type)
+      user = Score.for_user(m.user.nick)
+      return if user.nil?
+      unless user.ranks[type] < 5
+        m.user.msg "--------------------------------------"
+        data =  if type == :count
+                  user.count
+                else
+                  Cinch::Toolbox.time_format(user.time)
+                end
+        score_message(m, user.ranks[:count], user.nick, data)
+      end
+    end
+
+    def score_message(m, rank, nick, stat)
+      m.user.msg ["#{rank}.", nick, '-', stat].join(' ')
+    end
 
     def init_bag(m)
-      if Bag.last[:action] == :nom 
-        m.channel.action db_message(:nom, { new: m.user.nick, 
+      if Bag.last[:action] == :nom
+        m.channel.action db_message(:nom, { new: m.user.nick,
                                             old: Bag.last[:nick] })
         Bag.clear_last
       else
@@ -92,13 +125,6 @@ module Cinch::Plugins
       end
       Bag.give_to(m.user.nick)
       Score.add_count(m.user.nick, 1)
-    end
-
-    def action_on_bag?(m)
-      Bag.current &&
-      m.user.nick == Bag.current.nick &&
-      m.action_message &&
-      m.action_message.match(/(bag of dicks|dickbag)/)
     end
 
     def db_message(event, data = nil)

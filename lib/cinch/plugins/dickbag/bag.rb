@@ -31,9 +31,9 @@ class Bag < Cinch::Plugins::Dickbag
     storage.data[:last] || {}
   end
 
-  def self.last=(last)
+  def self.set_last(action, nick)
     storage = load_data
-    storage.data[:last] = last
+    storage.data[:last] = { action: action, nick: nick }
     storage.save
   end
 
