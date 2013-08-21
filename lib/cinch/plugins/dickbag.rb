@@ -27,7 +27,7 @@ module Cinch::Plugins
 
     match /^[!\.]dickbag$/,      method: :dickbag,  react_on: :channel
     match /^[!\.]dickbag info/,  method: :info
-    match /^[!\.]dickbag stats/, method: :stats,    react_on: :private
+    match /^[!\.]dickbag stats/, method: :stats
 
     def listen(m)
       @bot.synchronize(:bag) do
