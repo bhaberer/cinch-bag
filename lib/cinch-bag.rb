@@ -1,4 +1,5 @@
-require 'cinch/plugins/dickbag'
-require 'cinch/plugins/dickbag/version'
-require 'cinch/plugins/dickbag/bag'
-require 'cinch/plugins/dickbag/score'
+# -*- encoding : utf-8 -*-
+require 'cinch/plugins/bag'
+require 'cinch/plugins/bag/version'
+require 'cinch/plugins/bag/item'
+require 'cinch/plugins/bag/score'
