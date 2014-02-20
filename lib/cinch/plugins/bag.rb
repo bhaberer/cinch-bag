@@ -33,8 +33,8 @@ module Cinch::Plugins
     def listen(m)
       @bot.synchronize(:bag) do
         if Item.current && m.user.nick == Item.current.nick && m.action_message
-          action = m.action_message.match(/^(.*) (bag of dicks|dickbag)/)[1]
-          if action.match(/noms|eats/)
+          action = m.action_message[/^(.*) (bag of dicks|dickbag)/, 1]
+          if action && action.match(/noms|eats/)
             Item.set_last(:nom, m.user.nick)
             Score.add_time(m.user.nick, Item.current.time)
             Item.clear_current
