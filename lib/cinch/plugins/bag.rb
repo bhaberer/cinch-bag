@@ -12,7 +12,7 @@ module Cinch::Plugins
     @@bag_file    = 'yaml/bag.yml'
     @@score_file  = 'yaml/bag_status.yml'
 
-    self.help = 'Use .dickbag to get the bag.'
+    self.help = 'Use .bag to get the bag.'
 
     enforce_cooldown
 
@@ -26,9 +26,9 @@ module Cinch::Plugins
 
     set(prefix: /^[!\.]/)
 
-    match(/dickbag$/,      method: :dickbag,  react_on: :channel)
-    match(/dickbag info/,  method: :info)
-    match(/dickbag stats/, method: :stats)
+    match(/(?:dick)?bag$/,      method: :bag,  react_on: :channel)
+    match(/(?:dick)?bag info/,  method: :info)
+    match(/(?:dick)?bag stats/, method: :stats)
 
     def listen(m)
       @bot.synchronize(:bag) do
@@ -43,7 +43,7 @@ module Cinch::Plugins
       end
     end
 
-    def dickbag(m)
+    def bag(m)
       @bot.synchronize(:bag) do
         new_nick = m.user.nick
         old_nick = Item.current.nick unless Item.current.nil?
@@ -65,9 +65,9 @@ module Cinch::Plugins
 
     def info(m)
       if Item.current.nil? || Item.current.nick.nil?
-        message = ['I am currently holding the bag of dicks.']
+        message = ['I am currently holding the bag.']
       else
-        message = ["#{Item.current.nick} is holding the bag of dicks."]
+        message = ["#{Item.current.nick} is holding the bag."]
         message << "I gave it to them #{Item.current.time.ago.to_words}."
         message << "The bag has been held by #{Item.current.count} people!"
       end
@@ -84,16 +84,16 @@ module Cinch::Plugins
          'I\'d steal it from you and give it back to you, but that just seems silly.']
           .shuffle.first
       when :new_owner
-        ["reaches over to #{data[:old]}, takes the bag of dicks, and hands it to #{data[:new]}",
+        ["reaches over to #{data[:old]}, takes the bag, and hands it to #{data[:new]}",
          "grabs the bag from #{data[:old]} and gives it to #{data[:new]}",
          "distracts #{data[:old]} with cat gifs long enough for #{data[:new]} to grab the bag"]
            .shuffle.first
       when :nom
-        "grabs a new bag of dicks for #{data[:new]} since #{data[:old]} went all nomnomonom on the last one."
+        "grabs a new bag for #{data[:new]} since #{data[:old]} went all nomnomonom on the last one."
       when :hid
-        "grabs a new bag of dicks for #{data[:new]} since the last one seems to have vanished."
+        "grabs a new bag for #{data[:new]} since the last one seems to have vanished."
       when :new
-        "reaches down and grabs a new bag of dicks and hands it to #{data[:new]}"
+        "reaches down and grabs a new bag and hands it to #{data[:new]}"
       end
     end
   end
